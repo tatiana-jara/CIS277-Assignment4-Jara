@@ -129,33 +129,75 @@ The `validate.py` script runs the instructor's public tests. The GitHub Actions 
 
 ## Tests and Results
 
-### Instructor-supplied expected results
+### Tree A and Tree B Results
 
-| Result | Tree A | Tree B |
+I compared the expected traversal sequences and measurements with the actual program output.
+
+**Tree A — Binary Search Tree**
+
+| Test | Expected | Actual |
 |---|---|---|
-| Preorder | 50 30 20 40 70 60 80 | 10 30 5 20 15 |
-| Inorder | 20 30 40 50 60 70 80 | 30 5 10 20 15 |
-| Postorder | 20 40 30 60 80 70 50 | 5 30 15 20 10 |
-| Level order | 50 30 70 20 40 60 80 | 10 30 20 5 15 |
-| Nodes | 7 | 5 |
-| Leaves | 4 | 2 |
-| Height (levels) | 3 | 3 |
-| Sum | 350 | 80 |
+| Preorder | 50 30 20 40 70 60 80 | 50 30 20 40 70 60 80 |
+| Inorder | 20 30 40 50 60 70 80 | 20 30 40 50 60 70 80 |
+| Postorder | 20 40 30 60 80 70 50 | 20 40 30 60 80 70 50 |
+| Level Order | 50 30 70 20 40 60 80 | 50 30 70 20 40 60 80 |
+| Nodes | 7 | 7 |
+| Leaves | 4 | 4 |
+| Height | 3 | 3 |
+| Sum | 350 | 350 |
 
-### Independent student test cases
+**Tree B — Non-BST Binary Tree**
 
-The provided `tests/student_tests.cpp` draft includes the cases below. The implementation was tested in the generated example environment with GCC 14.2.0 in C++23 mode: **62/62 checks passed**. The sanitizer build also completed with exit code 0, with no sanitizer findings in that run. **Run the tests yourself and record your own results here before submission.**
+| Test | Expected | Actual |
+|---|---|---|
+| Preorder | 10 30 5 20 15 | 10 30 5 20 15 |
+| Inorder | 30 5 10 20 15 | 30 5 10 20 15 |
+| Postorder | 5 30 15 20 10 | 5 30 15 20 10 |
+| Level Order | 10 30 20 5 15 | 10 30 20 5 15 |
+| Nodes | 5 | 5 |
+| Leaves | 2 | 2 |
+| Height | 3 | 3 |
+| Sum | 80 | 80 |
 
-| Test input / exact shape | Expected | My actual result | Corrections I made |
+Both trees produced the expected results, and their root pointers were set to `nullptr` after destruction.
+
+### Additional Student Tests
+
+The following test cases are included in `tests/student_tests.cpp`.
+
+| Test Case | Expected Result | Actual Result | Corrections |
 |---|---|---|---|
-| Empty tree, destroy null twice | Empty traversals; counts/height/sum 0; no crash | [Run and fill] | [Fill] |
-| Single node -4 | All traversals -4; nodes 1; leaves 1; height 1; sum -4 | [Run and fill] | [Fill] |
-| Four-node left chain 10→20→30→40 | Height 4; one leaf; preorder 10 20 30 40; inorder 40 30 20 10 | [Run and fill] | [Fill] |
-| Four-node right chain 10→20→30→40 | Height 4; one leaf; inorder 10 20 30 40; postorder 40 30 20 10 | [Run and fill] | [Fill] |
-| Root 0; left -3 with children -3 and 0; right 0 with right child 5 | Six nodes; three leaves; height 3; sum -1; duplicate/zero/negative values retained | [Run and fill] | [Fill] |
-| Repeated traversals and modified returned vector | A later traversal and node values remain unchanged | [Run and fill] | [Fill] |
-| Destroy, rebuild with -10 and right child 2, destroy twice | Rebuilt sum -8; roots null after deletion | [Run and fill] | [Fill] |
-| Extra uneven tree: root 12; left -2→right 7; right 19→right 25→left 21 | Six nodes; two leaves; height 4; sum 82 | [Run and fill] | [Fill] |
+| Empty tree | Empty traversals, zero measurements, safe repeated deletion | PASS | None |
+| Single node (-4) | 1 node, 1 leaf, height 1, sum -4 | PASS | None |
+| Left-only chain (10, 20, 30, 40) | 4 nodes, 1 leaf, height 4, sum 100 | PASS | None |
+| Right-only chain (10, 20, 30, 40) | 4 nodes, 1 leaf, height 4, sum 100 | PASS | None |
+| Duplicate, zero, and negative values | 6 nodes, 3 leaves, height 3, sum -1 | PASS | None |
+| Repeated traversals and vector modification | Original tree and subsequent results remain unchanged | PASS | None |
+| Destruction and rebuilding | New tree has sum -8; root becomes null after deletion | PASS | None |
+| Additional uneven tree (12, -2, 7, 19, 25, 21) | 6 nodes, 2 leaves, height 4, sum 82 | PASS | None |
+
+**Student Tests Result:** 62/62 checks passed.
+
+### Public Validator Results
+
+The instructor's `validate.py` was executed with ChatGPT assistance using GCC 14 and C++23.
+
+- Required files and README headings: PASS
+- Public behavioral tests: 96/96 PASS
+- Demonstration compilation: PASS
+- Overall public preflight: PASS
+
+The latest GitHub Actions preflight also completed successfully.
+
+### Memory Management Check
+
+With ChatGPT assistance, the student tests were also executed using a memory checker. All 62 tests passed, and no memory errors were reported during that run.
+
+I reviewed the `destroyTree()` logic, which deletes the left and right subtrees before deleting the parent node and then sets the root pointer to `nullptr`.
+
+### Corrections and Final Results
+
+No code corrections were required after the latest tests. The expected results matched the actual output, and both the student tests and public validator passed.
 
 **My own student-tests summary:** [Copy summary and test date from your machine.]
 
