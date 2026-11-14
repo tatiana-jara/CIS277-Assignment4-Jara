@@ -2,22 +2,27 @@
 
 ## Student
 
-- Name: **[Write your name]**
-- Course: CIS-277
-- Language: C++23
-- Repository: **[Paste your public GitHub repository URL]**
+Tatiana Jara
 
 ## Design
 
-### Initial plan (required: write this yourself)
+### Initial plan 
 
-**IMPORTANT:** Your instructor requires your own initial plan written before coding or asking AI to implement the program. Do not falsely claim this was written earlier if it was not. Retain your original plan if you already wrote one. The questions below are prompts, **not a completed personal plan**.
+My plan for this assignment is to build two binary trees using dynamically allocated nodes and pointers in C++23.
 
-1. **Node fields:** [In your own words, explain `value`, `left`, and `right`.]
-2. **Base case:** [What does each recursive function do when the pointer is `nullptr`?]
-3. **Collecting traversals:** [How does one `std::vector<int>&` receive the visited values?]
-4. **Ownership and cleanup:** [Who owns each `new TreeNode`, and how do you safely release it?]
-5. **Changes after the initial plan:** [Describe any changes and when they were made.]
+Node Structure: I will use a TreeNode structure containing an integer value and two pointers, left and right, initially set to nullptr.
+
+Tree Construction: I will create Tree A and Tree B using new and connect the nodes manually with their left and right pointers.
+
+Traversals: I will implement preorder, inorder, and postorder using recursion. Each traversal will use a helper function that passes a vector by reference to collect the values. For level-order traversal, I will use a FIFO queue.
+
+Base Case: If a node is nullptr, the recursive function will stop. Empty trees should return empty traversal vectors and zero for their measurements.
+
+Tree Measurements: I will create recursive functions to count nodes and leaves, calculate the height, and add all node values.
+
+Memory Management: I will use postorder deletion to release every dynamically allocated node. After deleting the tree, I will set the root pointer to nullptr to avoid dangling pointers.
+
+Testing: I will compare the program's output with my predicted results for Tree A and Tree B. I will also test empty trees, single nodes, chains, duplicate values, and negative values.
 
 ### Tree diagrams
 
@@ -41,22 +46,53 @@ Tree B (binary tree, not a BST):
            5    15
 ```
 
-### My predictions (complete by hand, separate from actual output)
+### My predictions 
 
-| Tree | Operation | My predicted result |
-|---|---|---|
-| A | Preorder | [Fill in] |
-| A | Inorder | [Fill in] |
-| A | Postorder | [Fill in] |
-| A | Level order | [Fill in] |
-| A | Nodes / Leaves / Height / Sum | [Fill in] |
-| B | Preorder | [Fill in] |
-| B | Inorder | [Fill in] |
-| B | Postorder | [Fill in] |
-| B | Level order | [Fill in] |
-| B | Nodes / Leaves / Height / Sum | [Fill in] |
+### Tree Predictions and Reasoning
 
-**My hand trace of one traversal:** [Show your steps, using the actual child connections, before comparing with the program.]
+**Tree A — Binary Search Tree**
+
+| Operation | Predicted Result |
+|---|---|
+| Preorder | 50 30 20 40 70 60 80 |
+| Inorder | 20 30 40 50 60 70 80 |
+| Postorder | 20 40 30 60 80 70 50 |
+| Level Order | 50 30 70 20 40 60 80 |
+| Nodes | 7 |
+| Leaves | 4 |
+| Height | 3 |
+| Sum | 350 |
+
+**Tree B — Non-BST Binary Tree**
+
+| Operation | Predicted Result |
+|---|---|
+| Preorder | 10 30 5 20 15 |
+| Inorder | 30 5 10 20 15 |
+| Postorder | 5 30 15 20 10 |
+| Level Order | 10 30 20 5 15 |
+| Nodes | 5 |
+| Leaves | 2 |
+| Height | 3 |
+| Sum | 80 |
+
+### Traversal Reasoning
+
+**Preorder Traversal — Tree A**
+
+**Rule: Root → Left → Right**
+
+1. Visit the root: **50**.
+2. Move to the left child of 50: **30**.
+3. Visit the left child of 30: **20**.
+4. Visit the right child of 30: **40**.
+5. Return to the root and move to the right child of 50: **70**.
+6. Visit the left child of 70: **60**.
+7. Visit the right child of 70: **80**.
+
+**Final Preorder Sequence:** `50 30 20 40 70 60 80`
+
+In preorder traversal, I visit the parent node first, then complete the entire left subtree before moving to the right subtree.
 
 ### Implementation approach
 
@@ -64,17 +100,11 @@ The tree nodes are dynamically allocated and connected explicitly in `main.cpp`.
 
 ## How to Compile
 
-Use a compiler supporting C++23. From the repository root:
+This project uses C++23. From the repository root, compile the main program and student tests using:
 
 ```bash
 g++ -std=c++23 -Wall -Wextra -pedantic main.cpp TreeExplorer.cpp -o tree_explorer
 g++ -std=c++23 -Wall -Wextra -pedantic -I. tests/student_tests.cpp TreeExplorer.cpp -o student_tests
-```
-
-For a memory check with GCC/Clang AddressSanitizer and UndefinedBehaviorSanitizer (when supported):
-
-```bash
-g++ -std=c++23 -Wall -Wextra -pedantic -fsanitize=address,undefined -fno-omit-frame-pointer -g -I. tests/student_tests.cpp TreeExplorer.cpp -o student_tests_asan
 ```
 
 ## How to Run
@@ -87,7 +117,7 @@ On Linux/macOS:
 python3 validate.py
 ```
 
-On Windows PowerShell (assuming `g++` and Python are installed):
+On Windows PowerShell:
 
 ```powershell
 .\tree_explorer.exe
@@ -95,13 +125,7 @@ On Windows PowerShell (assuming `g++` and Python are installed):
 python validate.py
 ```
 
-If running the sanitizer build on Linux/macOS:
-
-```bash
-ASAN_OPTIONS=detect_leaks=1 ./student_tests_asan
-```
-
-**Important:** Download the instructor-provided `validate.py`, `tests/public_tests.cpp`, and `.github/workflows/validate.yml` from the separate Assignment 4 Validator page. Keep these files unchanged. They are **not included in this starter package**.
+The `validate.py` script runs the instructor's public tests. The GitHub Actions workflow also runs the validator automatically when changes are pushed to the repository.
 
 ## Tests and Results
 
