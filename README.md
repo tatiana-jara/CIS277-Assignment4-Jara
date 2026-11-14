@@ -107,14 +107,26 @@ g++ -std=c++23 -Wall -Wextra -pedantic main.cpp TreeExplorer.cpp -o tree_explore
 g++ -std=c++23 -Wall -Wextra -pedantic -I. tests/student_tests.cpp TreeExplorer.cpp -o student_tests
 ```
 
+For memory checking with AddressSanitizer and UndefinedBehaviorSanitizer:
+
+```bash
+g++ -std=c++23 -Wall -Wextra -pedantic -fsanitize=address,undefined -fno-omit-frame-pointer -g -I. tests/student_tests.cpp TreeExplorer.cpp -o student_tests_asan
+```
+
 ## How to Run
 
-On Linux/macOS:
+On Linux/macOS or GitHub Codespaces:
 
 ```bash
 ./tree_explorer
 ./student_tests
 python3 validate.py
+```
+
+To run the memory check in GitHub Codespaces:
+
+```bash
+ASAN_OPTIONS=detect_leaks=1 ./student_tests_asan
 ```
 
 On Windows PowerShell:
@@ -125,13 +137,12 @@ On Windows PowerShell:
 python validate.py
 ```
 
-The `validate.py` script runs the instructor's public tests. The GitHub Actions workflow also runs the validator automatically when changes are pushed to the repository.
-
+The instructor's public validator also runs automatically through GitHub Actions when changes are pushed to the repository.
 ## Tests and Results
 
-### Tree A and Tree B Results
+### 1. Tree A and Tree B Results
 
-I compared the expected traversal sequences and measurements with the actual program output.
+I compiled and ran `main.cpp` using C++23 in GitHub Codespaces. I compared the expected traversal sequences and measurements with the actual program output.
 
 **Tree A — Binary Search Tree**
 
@@ -159,78 +170,148 @@ I compared the expected traversal sequences and measurements with the actual pro
 | Height | 3 | 3 |
 | Sum | 80 | 80 |
 
-Both trees produced the expected results, and their root pointers were set to `nullptr` after destruction.
+**Result:** Both trees produced the expected results. After calling `destroyTree()`, both root pointers were confirmed to be `nullptr`.
 
-### Additional Student Tests
+### 2. Independent Student Tests
 
-The following test cases are included in `tests/student_tests.cpp`.
+I compiled and ran `tests/student_tests.cpp` using C++23 in GitHub Codespaces.
 
-| Test Case | Expected Result | Actual Result | Corrections |
+The following table shows the test cases, expected results, actual results, and corrections.
+
+| Test Case / Input | Expected Result | Actual Result | Corrections |
 |---|---|---|---|
-| Empty tree | Empty traversals, zero measurements, safe repeated deletion | PASS | None |
-| Single node (-4) | 1 node, 1 leaf, height 1, sum -4 | PASS | None |
-| Left-only chain (10, 20, 30, 40) | 4 nodes, 1 leaf, height 4, sum 100 | PASS | None |
-| Right-only chain (10, 20, 30, 40) | 4 nodes, 1 leaf, height 4, sum 100 | PASS | None |
-| Duplicate, zero, and negative values | 6 nodes, 3 leaves, height 3, sum -1 | PASS | None |
-| Repeated traversals and vector modification | Original tree and subsequent results remain unchanged | PASS | None |
-| Destruction and rebuilding | New tree has sum -8; root becomes null after deletion | PASS | None |
-| Additional uneven tree (12, -2, 7, 19, 25, 21) | 6 nodes, 2 leaves, height 4, sum 82 | PASS | None |
+| Empty tree (`nullptr`) | Empty traversals, 0 nodes, 0 leaves, height 0, sum 0; repeated destruction is safe | PASS — All matched | None |
+| Singleton (-4) | All traversals [-4], 1 node, 1 leaf, height 1, sum -4 | PASS — All matched | None |
+| Left-only chain (10 → 20 → 30 → 40) | 4 nodes, 1 leaf, height 4, sum 100; preorder [10, 20, 30, 40], inorder [40, 30, 20, 10] | PASS — All matched | None |
+| Right-only chain (10 → 20 → 30 → 40) | 4 nodes, 1 leaf, height 4, sum 100; inorder [10, 20, 30, 40], postorder [40, 30, 20, 10] | PASS — All matched | None |
+| Duplicate, zero, and negative values | 6 nodes, 3 leaves, height 3, sum -1; all values are preserved | PASS — All matched | None |
+| Repeated traversals and vector modification | Later traversal results and the original tree remain unchanged | PASS — Tree unchanged | None |
+| Destruction and rebuilding | First tree sum 4; rebuilt tree preorder [-10, 2], sum -8; root becomes null after destruction | PASS — All matched | None |
+| Additional uneven tree (12, -2, 7, 19, 25, 21) | 6 nodes, 2 leaves, height 4, sum 82 | PASS — All matched | None |
 
-**Student Tests Result:** 62/62 checks passed.
+**Student Tests Result: 62/62 checks passed.**
 
-### Public Validator Results
+All expected results matched the actual results.
 
-The instructor's `validate.py` was executed with ChatGPT assistance using GCC 14 and C++23.
+### 3. Public Validator Results
+
+I ran the instructor's official Assignment 4 validator through GitHub Actions using GCC 14 and C++23.
+
+**Results:**
 
 - Required files and README headings: PASS
 - Public behavioral tests: 96/96 PASS
-- Demonstration compilation: PASS
+- Main demonstration compilation: PASS
 - Overall public preflight: PASS
 
-The latest GitHub Actions preflight also completed successfully.
+**Public Validator Result: 96/96 behavioral checks passed.**
 
-### Memory Management Check
+The public validator confirmed that the program compiled and passed the required behavioral checks. I also ran my independent student tests separately.
 
-With ChatGPT assistance, the student tests were also executed using a memory checker. All 62 tests passed, and no memory errors were reported during that run.
+### 4. Memory Management Check
 
-I reviewed the `destroyTree()` logic, which deletes the left and right subtrees before deleting the parent node and then sets the root pointer to `nullptr`.
+I compiled and ran tests/student_tests.cpp using AddressSanitizer and UndefinedBehaviorSanitizer in GitHub Codespaces.
 
-### Corrections and Final Results
+Result: 62/62 tests passed. No memory errors, undefined behavior, or memory leaks were reported during the execution.
 
-No code corrections were required after the latest tests. The expected results matched the actual output, and both the student tests and public validator passed.
+The destroyTree() function uses postorder deletion to delete the left and right subtrees before the parent node. It also sets the root pointer to nullptr after destruction.
 
-**My own student-tests summary:** [Copy summary and test date from your machine.]
+### 5. Corrections and Final Results
 
-**My own public-validator result:** [Run `python validate.py` after downloading the exact instructor files. Record PASS/FAIL and fixes. Do not claim a PASS before running it.]
+No C++ code corrections were necessary after the final tests.
 
-**My own memory-check evidence:** [If you ran ASan, Valgrind, or another checker, record exact command and result. If unavailable, write a manual allocation/deletion trace. Example small-tree trace: allocate root and its child; destroy child; destroy root; clear root pointer.]
+The main program produced the expected output for Tree A and Tree B, all 62 independent student tests passed, and the instructor's public validator passed all 96 behavioral checks.
 
-**Changes/corrections made during testing:** [Describe actual debugging steps, even if you made no corrections.]
+The results confirmed that the traversal functions, tree measurements, vector independence, and cleanup behavior worked correctly for the tested cases.
 
 ## Analysis Questions
 
-These are **AI-assisted sample answers to review and revise in your own words** before submitting.
+### 1. Trace the preorder, inorder, and postorder processing steps for the subtree rooted at 30 in Tree A. Explain why the sequences change while the sum does not.
 
-1. **Traversals of subtree rooted at 30.** The subtree is 30 with left child 20 and right child 40. Preorder processes `30 20 40`; inorder processes `20 30 40`; postorder processes `20 40 30`. The visit order differs, but all process the same three values, so the sum remains `30 + 20 + 40 = 90`.
+For the subtree rooted at 30 in Tree A:
 
-2. **Tree B versus BST.** Tree B is a binary tree because each node has no more than two children. It is not a BST: the value 30 appears in the left subtree of root 10, even though 30 > 10. Also, 15 is a right child of 20 even though 15 < 20. Its inorder output is `30 5 10 20 15`, which is not sorted because inorder follows pointer structure and does not sort values.
+```text
+       30
+      /  \
+     20   40
+```
 
-3. **Depth and height.** Node 40 has depth 2 because the path `50 → 30 → 40` has two edges. Depth counts edges from the root to a particular node. In this assignment, height counts levels along the longest downward path: Tree A has height 3, and an empty tree has height 0.
+- **Preorder (Root → Left → Right):** 30 20 40
+- **Inorder (Left → Root → Right):** 20 30 40
+- **Postorder (Left → Right → Root):** 20 40 30
 
-4. **FIFO queue.** Level order starts by enqueueing the root. It repeatedly dequeues the oldest waiting node, processes its value, then enqueues its left and right children. FIFO ensures that already-enqueued nodes at earlier levels are visited before nodes at later levels. This uses the same first-in, first-out behavior studied in the queue unit.
+The sequences are different because each traversal visits the nodes in a different order. However, the sum remains the same because all three traversals visit the same nodes.
 
-5. **Complexities.** For `n` nodes, height `h`, and maximum level width `w`, each depth-first traversal and recursive measurement takes O(n) time and uses O(h) recursion-stack space. Level order takes O(n) time and O(w) queue space. Each returned traversal vector separately uses O(n) space; that output storage is not included in the auxiliary stack/queue bounds. Destruction takes O(n) time and O(h) recursion-stack space. A balanced tree has O(log n) height, while a one-sided chain can have O(n) height. Ordinary traversal does not need dynamic-programming tabulation because each node is processed only once, without overlapping subproblems.
+**Sum:** 30 + 20 + 40 = 90
 
-6. **Postorder deletion and pointer reference.** Delete the left and right subtrees before deleting the parent so the program can still read the parent's child pointers. Deleting a parent before accessing its child pointers would risk accessing freed memory and losing access to children. `TreeNode*& root` is a reference to the caller's pointer, so after deleting the nodes, assigning `root = nullptr` also clears the caller's pointer. Repeated destruction of that null pointer is safe.
+### 2. Explain why Tree B is a binary tree but not a BST, using a specific violated ordering relationship. Why is its inorder sequence not sorted?
+
+Tree B is a valid binary tree because each node has at most two children. However, it is not a Binary Search Tree (BST) because it does not follow the BST ordering rule.
+
+For example, node 30 is the left child of node 10, but 30 is greater than 10. Also, node 15 is the right child of node 20, but 15 is smaller than 20.
+
+**Inorder sequence:** 30 5 10 20 15
+
+The sequence is not sorted because Tree B does not follow BST ordering. Inorder traversal visits nodes in left-root-right order without sorting their values.
+
+### 3. Give the depth of node 40 in Tree A and distinguish depth in edges from this assignment's height in levels.
+
+The depth of node 40 in Tree A is **2 edges** because the path from the root is:
+
+50 → 30 → 40
+
+Depth measures the number of edges from the root to a specific node. Height measures the longest downward path in a tree.
+
+In this assignment, height is measured in levels rather than edges. Therefore, Tree A has a height of **3 levels**.
+
+### 4. Explain how the FIFO queue produces level order. Connect this to the queue behavior from earlier work.
+
+Level-order traversal uses a FIFO queue to visit nodes one level at a time, from left to right.
+
+The root is added to the queue first. When a node is removed, its value is processed, and its left and right children are added to the back of the queue.
+
+This process continues until the queue is empty.
+
+For Tree A, the level-order sequence is:
+
+**50 30 70 20 40 60 80**
+
+This follows the same FIFO concept used in earlier queue assignments.
+
+### 5. For n nodes, height h, and maximum level width w, explain the time and auxiliary space for depth-first traversal, level-order traversal, measurements, and destruction. Discuss the O(n) returned vector separately from the call stack or queue. Compare the height of a balanced tree with a chain. Explain why a normal traversal does not need dynamic-programming tabulation.
+
+| Operation | Time Complexity | Auxiliary Space |
+|---|---|---|
+| Preorder, Inorder, Postorder | O(n) | O(h) |
+| Level Order | O(n) | O(w) |
+| Count Nodes | O(n) | O(h) |
+| Count Leaves | O(n) | O(h) |
+| Tree Height | O(n) | O(h) |
+| Sum Values | O(n) | O(h) |
+| Destroy Tree | O(n) | O(h) |
+
+All operations take O(n) time because they visit each node once. Recursion uses O(h) stack space, while level order uses O(w) queue space. Traversal result vectors require an additional O(n) space.
+
+A balanced tree has height O(log n), while a chain has height O(n). Dynamic-programming tabulation is unnecessary because normal traversals do not repeat subproblems.
+
+### 6. Explain why deletion uses postorder and what TreeNode*& changes in the caller. What would go wrong if the parent were deleted before reading its child pointers?
+
+The `destroyTree()` function uses postorder deletion (Left → Right → Root) because the children must be deleted before their parent.
+
+The parameter `TreeNode*& root` is a reference to a pointer. This allows the function to modify the caller's original root pointer and set it to `nullptr` after deletion.
+
+If the parent were deleted before accessing its child pointers, the program could attempt to access memory that had already been released. This would cause undefined behavior and could also prevent the remaining nodes from being deleted correctly.
 
 ## AI Use
 
-**AI assistance used:** ChatGPT was used to explain the assignment and to generate draft C++ source files, traversal helpers, recursion-based measurements, safe tree destruction, independent tests, and this README scaffold. AI-assisted compilation and test runs were used to check the draft. The generated project initially had compiler warnings in diagram comments; those comments were revised, and it was recompiled without warnings.
+I used ChatGPT to help me understand binary trees, recursion, traversal methods, and memory management. ChatGPT guided me step by step on how to use GitHub Codespaces and explained how to compile and run the program. It also introduced me to AddressSanitizer and UndefinedBehaviorSanitizer, explained their purpose, and provided the commands to check for memory errors. I executed these commands in Codespaces and reviewed the results.
 
-**My decisions and edits:** [Describe at least one genuine choice you made, one change you accepted or rejected, and why. Do not claim changes you did not make.]
+I reviewed the code and worked through the traversal examples to understand how the functions operate. I kept the required function signatures and used explicit pointer connections to build both trees instead of a BST insertion function.
 
-**My verification:** [Describe a specific test you personally ran, its expected and actual results, any corrections, plus the actual public-validator outcome.]
+To verify my work, I ran the main program, the independent student tests, and the instructor's public validator. My student tests passed 62/62 checks, and the public validator passed 96/96 checks. I also ran the tests with Sanitizer enabled, and no memory errors were reported.
 
-**What I learned / still need to practice:** [Explain, in your own words, a concept such as how preorder differs from inorder, why a queue implements level order, or why `TreeNode*&` can null the caller's pointer.]
+One test that helped me understand traversal order was the left-only chain, where preorder and inorder produced different sequences.
 
-**Development history:** [Briefly list meaningful commits: plan, implementation, tests, fixes, final documentation.]
+Through this assignment, I learned more about recursive traversals, vectors, FIFO queues, and postorder deletion. I also learned how to use Sanitizer to check memory management. I still need more practice writing recursive functions independently.
+
+I documented my initial design plan after the AI-assisted implementation rather than before coding.
