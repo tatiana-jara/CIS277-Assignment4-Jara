@@ -313,5 +313,3 @@ To verify my work, I ran the main program, the independent student tests, and th
 One test that helped me understand traversal order was the left-only chain, where preorder and inorder produced different sequences.
 
 Through this assignment, I learned more about recursive traversals, vectors, FIFO queues, and postorder deletion. I also learned how to use Sanitizer to check memory management. I still need more practice writing recursive functions independently.
-
-I documented my initial design plan after the AI-assisted implementation rather than before coding.
